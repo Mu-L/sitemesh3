@@ -121,14 +121,29 @@ public class SiteMeshView implements View {
         // no-op by default
     }
 
+    /**
+     * Construct the {@link SiteMeshViewContext} used to dispatch decorator
+     * renders. Subclasses can override to return a custom context type
+     * (for example to push framework-specific request state around each
+     * {@link View#render} call dispatched by the context). The default
+     * implementation returns a plain {@link SiteMeshViewContext} wired
+     * with the collaborators supplied to this view.
+     */
+    protected SiteMeshViewContext createContext(HttpServletRequest request,
+                                                HttpServletResponse response,
+                                                String contentType,
+                                                ResponseMetaData metaData) {
+        return new SiteMeshViewContext(
+                contentType, request, response, servletContext,
+                contentProcessor, metaData, false,
+                viewResolver, request.getLocale());
+    }
+
     private void doRender(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response)
             throws Exception {
         ResponseMetaData metaData = new ResponseMetaData();
         String contentType = response.getContentType() != null ? response.getContentType() : "text/html";
-        SiteMeshViewContext context = new SiteMeshViewContext(
-                contentType, request, response, servletContext,
-                contentProcessor, metaData, false,
-                viewResolver, request.getLocale());
+        SiteMeshViewContext context = createContext(request, response, contentType, metaData);
 
         // Always-buffer selector: this View only runs when SiteMesh
         // decoration is wanted for the current request, so the content-type

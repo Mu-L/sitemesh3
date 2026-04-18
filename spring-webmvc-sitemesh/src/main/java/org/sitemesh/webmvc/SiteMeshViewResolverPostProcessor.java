@@ -56,6 +56,7 @@ public class SiteMeshViewResolverPostProcessor implements BeanDefinitionRegistry
     private String contentProcessorBeanName = "contentProcessor";
     private String decoratorSelectorBeanName = "decoratorSelector";
     private String servletContextBeanName = "servletContext";
+    private Class<? extends SiteMeshViewResolver> siteMeshViewResolverClass = SiteMeshViewResolver.class;
 
     private int order = Ordered.LOWEST_PRECEDENCE - 100;
 
@@ -76,7 +77,7 @@ public class SiteMeshViewResolverPostProcessor implements BeanDefinitionRegistry
         registry.registerBeanDefinition(inner, innerDefinition);
 
         GenericBeanDefinition wrapperDefinition = new GenericBeanDefinition();
-        wrapperDefinition.setBeanClass(SiteMeshViewResolver.class);
+        wrapperDefinition.setBeanClass(siteMeshViewResolverClass);
         wrapperDefinition.setPrimary(true);
         wrapperDefinition.setLazyInit(true);
 
@@ -138,6 +139,25 @@ public class SiteMeshViewResolverPostProcessor implements BeanDefinitionRegistry
 
     public void setServletContextBeanName(String servletContextBeanName) {
         this.servletContextBeanName = servletContextBeanName;
+    }
+
+    public Class<? extends SiteMeshViewResolver> getSiteMeshViewResolverClass() {
+        return siteMeshViewResolverClass;
+    }
+
+    /**
+     * Override the resolver class registered in place of the original
+     * view resolver bean. Useful for frameworks that need to plug in a
+     * {@link SiteMeshViewResolver} subclass (for example to return a
+     * framework-specific {@link SiteMeshView} subtype from
+     * {@link SiteMeshViewResolver#createSiteMeshView(org.springframework.web.servlet.View)}).
+     * Defaults to {@link SiteMeshViewResolver} itself.
+     */
+    public void setSiteMeshViewResolverClass(Class<? extends SiteMeshViewResolver> siteMeshViewResolverClass) {
+        if (siteMeshViewResolverClass == null) {
+            throw new IllegalArgumentException("siteMeshViewResolverClass must not be null");
+        }
+        this.siteMeshViewResolverClass = siteMeshViewResolverClass;
     }
 
     @Override

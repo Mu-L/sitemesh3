@@ -72,6 +72,17 @@ public class SiteMeshViewResolver implements ViewResolver, Ordered {
         if (innerView instanceof SiteMeshView) {
             return innerView;
         }
+        return createSiteMeshView(innerView);
+    }
+
+    /**
+     * Build the {@link SiteMeshView} that wraps {@code innerView}. Exposed
+     * for subclasses that want to return a custom {@link SiteMeshView}
+     * subtype (for example to override {@link SiteMeshView#preRender
+     * preRender}/{@link SiteMeshView#postRender postRender} hooks or the
+     * context factory) without reimplementing {@link #resolveViewName}.
+     */
+    protected SiteMeshView createSiteMeshView(View innerView) {
         return new SiteMeshView(innerView, contentProcessor, decoratorSelector, servletContext, innerViewResolver);
     }
 

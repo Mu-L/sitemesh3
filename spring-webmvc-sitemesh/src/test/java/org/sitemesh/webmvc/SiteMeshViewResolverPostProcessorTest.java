@@ -64,6 +64,27 @@ public class SiteMeshViewResolverPostProcessorTest extends TestCase {
         assertFalse(registry.containsBeanDefinition("jspViewResolverInner"));
     }
 
+    public void testCustomResolverClassIsRegistered() {
+        registerTarget("jspViewResolver");
+
+        SiteMeshViewResolverPostProcessor pp = new SiteMeshViewResolverPostProcessor();
+        pp.setSiteMeshViewResolverClass(CustomSiteMeshViewResolver.class);
+        pp.postProcessBeanDefinitionRegistry(registry);
+
+        BeanDefinition wrapper = registry.getBeanDefinition("jspViewResolver");
+        assertEquals(CustomSiteMeshViewResolver.class.getName(), wrapper.getBeanClassName());
+    }
+
+    public static class CustomSiteMeshViewResolver extends SiteMeshViewResolver {
+        public CustomSiteMeshViewResolver(
+                org.springframework.web.servlet.ViewResolver inner,
+                org.sitemesh.content.ContentProcessor cp,
+                org.sitemesh.DecoratorSelector<org.sitemesh.SiteMeshContext> ds,
+                jakarta.servlet.ServletContext sc) {
+            super(inner, cp, ds, sc);
+        }
+    }
+
     public void testCustomNames() {
         registerTarget("myViewResolver");
 

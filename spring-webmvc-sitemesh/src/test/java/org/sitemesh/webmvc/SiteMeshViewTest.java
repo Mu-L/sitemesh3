@@ -30,6 +30,7 @@ import org.sitemesh.content.ContentProcessor;
 import org.sitemesh.content.tagrules.TagBasedContentProcessor;
 import org.sitemesh.content.tagrules.decorate.DecoratorTagRuleBundle;
 import org.sitemesh.content.tagrules.html.CoreHtmlTagRuleBundle;
+import org.sitemesh.webapp.contentfilter.ResponseMetaData;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -197,6 +198,29 @@ public class SiteMeshViewTest extends TestCase {
         assertEquals(2, innerAt[0]);
         assertEquals(3, postAt[0]);
         assertSame(marker, seenToken[0]);
+    }
+
+    public void testCreateContextHookIsInvoked() throws Exception {
+        View inner = htmlView("<html><head><title>T</title></head><body>BODY</body></html>");
+        DecoratorSelector<SiteMeshContext> selector = (c, x) -> new String[0];
+        final AtomicInteger calls = new AtomicInteger();
+
+        SiteMeshView view = new SiteMeshView(inner, contentProcessor, selector, servletContext, null) {
+            @Override
+            protected SiteMeshViewContext createContext(HttpServletRequest req,
+                                                       HttpServletResponse resp,
+                                                       String contentType,
+                                                       ResponseMetaData metaData) {
+                calls.incrementAndGet();
+                return super.createContext(req, resp, contentType, metaData);
+            }
+        };
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setDispatcherType(DispatcherType.REQUEST);
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        view.render(Collections.emptyMap(), request, response);
+
+        assertEquals("createContext must be called once per non-INCLUDE render", 1, calls.get());
     }
 
     public void testPostRenderCalledEvenWhenInnerThrows() {

@@ -118,6 +118,24 @@ public class SiteMeshViewResolverTest extends TestCase {
         assertSame(raw, ((SiteMeshView) resolved).getInnerView());
     }
 
+    public void testCreateSiteMeshViewHookIsUsed() throws Exception {
+        final View raw = plainView();
+        ViewResolver inner = (name, locale) -> raw;
+        class CustomView extends SiteMeshView {
+            CustomView(View in) {
+                super(in, contentProcessor, decoratorSelector, servletContext, null);
+            }
+        }
+        SiteMeshViewResolver resolver = new SiteMeshViewResolver(inner, contentProcessor, decoratorSelector, servletContext) {
+            @Override
+            protected SiteMeshView createSiteMeshView(View innerView) {
+                return new CustomView(innerView);
+            }
+        };
+        View resolved = resolver.resolveViewName("home", Locale.ENGLISH);
+        assertTrue("expected CustomView from hook, got " + resolved.getClass(), resolved instanceof CustomView);
+    }
+
     public void testLayoutPathPrefixIsConfigurable() throws Exception {
         View raw = plainView();
         ViewResolver inner = (name, locale) -> raw;

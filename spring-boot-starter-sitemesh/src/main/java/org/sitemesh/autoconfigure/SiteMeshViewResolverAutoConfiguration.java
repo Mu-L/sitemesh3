@@ -147,6 +147,7 @@ public class SiteMeshViewResolverAutoConfiguration {
     }
 
     @Bean
+    @ConditionalOnMissingBean(SiteMeshViewResolverPostProcessor.class)
     public SiteMeshViewResolverPostProcessor siteMeshViewResolverPostProcessor() {
         SiteMeshViewResolverPostProcessor pp = new SiteMeshViewResolverPostProcessor();
         pp.setTargetViewResolverBeanName(targetViewResolverBeanName);
