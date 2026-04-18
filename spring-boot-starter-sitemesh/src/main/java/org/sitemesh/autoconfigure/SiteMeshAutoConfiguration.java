@@ -28,6 +28,7 @@ import org.sitemesh.webapp.contentfilter.Selector;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.filter.OrderedFilter;
@@ -36,6 +37,7 @@ import org.springframework.context.annotation.Bean;
 import java.util.*;
 
 @AutoConfiguration
+@ConditionalOnProperty(name = "sitemesh.integration", havingValue = "filter", matchIfMissing = true)
 @ConfigurationProperties(prefix = "sitemesh.decorator")
 public class SiteMeshAutoConfiguration {
     private List<HashMap<String, String>> mappings;
