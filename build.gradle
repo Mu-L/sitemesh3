@@ -12,9 +12,17 @@ def isNonStable = { String version ->
   def regex = /^[0-9,.v-]+(-r)?$/
   return !stableKeyword && !(version ==~ regex)
 }
+def majorOf = { String version ->
+  def m = version =~ /^(\d+)/
+  m.find() ? (m.group(1) as Integer) : null
+}
+def isMajorBump = { String current, String candidate ->
+  def c = majorOf(current); def n = majorOf(candidate)
+  c != null && n != null && n > c
+}
 tasks.named("dependencyUpdates").configure {
   rejectVersionIf {
-    isNonStable(it.candidate.version)
+    isNonStable(it.candidate.version) || isMajorBump(it.currentVersion, it.candidate.version)
   }
 }
 // ./gradlew dependencyUpdates
