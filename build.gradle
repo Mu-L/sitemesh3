@@ -20,9 +20,21 @@ def isMajorBump = { String current, String candidate ->
   def c = majorOf(current); def n = majorOf(candidate)
   c != null && n != null && n > c
 }
+// 3.2.x targets Jakarta EE 10. Reject candidate versions that cross into EE 11
+// even when the major number doesn't change (Servlet 6.0 → 6.1, WebSocket 2.1 → 2.2).
+def isPostEE10 = { String group, String name, String candidate ->
+  def parts = candidate.tokenize('.')
+  if (parts.size() < 2) return false
+  def major = parts[0] as Integer
+  def minor = parts[1] as Integer
+  (group == 'jakarta.servlet'   && name == 'jakarta.servlet-api'   && (major > 6 || (major == 6 && minor > 0))) ||
+  (group == 'jakarta.websocket' && name == 'jakarta.websocket-api' && (major > 2 || (major == 2 && minor > 1)))
+}
 tasks.named("dependencyUpdates").configure {
   rejectVersionIf {
-    isNonStable(it.candidate.version) || isMajorBump(it.currentVersion, it.candidate.version)
+    isNonStable(it.candidate.version) ||
+      isMajorBump(it.currentVersion, it.candidate.version) ||
+      isPostEE10(it.candidate.group, it.candidate.module, it.candidate.version)
   }
 }
 // ./gradlew dependencyUpdates
