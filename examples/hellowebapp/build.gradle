@@ -13,6 +13,8 @@ gretty {
     // -PservletContainer=tomcat10 swaps to the Tomcat 10.1 (EE 10) runner
     servletContainer = project.findProperty('servletContainer') ?: 'jetty12'
     contextPath = '/'
+    // -PhttpPort=18080 lets the example run alongside other local servers on 8080.
+    httpPort = (project.findProperty('httpPort') ?: 8080) as Integer
 }
 
 defaultTasks 'jettyRun'
