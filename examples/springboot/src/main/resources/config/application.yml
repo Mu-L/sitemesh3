@@ -6,6 +6,7 @@ spring:
   freemarker:
     suffix: .ftl
 sitemesh:
+  integration: view-resolver
   decorator:
     metaTag: decorator
 #    tagRuleBundles: org.sitemesh.content.tagrules.html.Sm2TagRuleBundle

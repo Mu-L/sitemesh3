@@ -19,6 +19,7 @@ package org.sitemesh.examples.springboot.controllers;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,14 +27,24 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.View;
-import org.springframework.web.servlet.view.InternalResourceViewResolver;
+import org.springframework.web.servlet.ViewResolver;
 
 import java.util.Date;
 
 @Controller
 public class GreetingController {
 
-    @Autowired InternalResourceViewResolver internalResourceViewResolver;
+    /**
+     * Injected as a {@link ViewResolver} so the example works under both
+     * SiteMesh integrations. The {@code @Qualifier("jspViewResolver")}
+     * targets the JSP resolver specifically (so {@link #greetingJsp} keeps
+     * rendering the JSP, not a Thymeleaf template named "greeting"). In
+     * filter-mode this is the raw {@code InternalResourceViewResolver};
+     * in view-resolver mode the Spring Boot starter registers a
+     * SiteMesh-wrapped alias alongside it ({@code jspViewResolverWithSiteMesh}
+     * — see {@code Application}) to decorate the JSP response.
+     */
+    @Autowired @Qualifier("jspViewResolver") ViewResolver internalResourceViewResolver;
 
     /**
      * Redirect root to index.html to avoid Spring Boot's WelcomePageHandlerMapping
