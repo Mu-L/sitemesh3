@@ -1,4 +1,4 @@
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %><html>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %><html>
   <head>
     <% if (request.getParameter("ex") != null) { throw new RuntimeException("This is a 500 error."); } %>
     <title>Hello World (Dynamic)</title>
