@@ -187,7 +187,13 @@ public class HttpServletResponseBuffer extends HttpServletResponseWrapper {
         }
         if (selector.shouldBufferForContentType(type, httpContentType.getType(), httpContentType.getEncoding())) {
             enableBuffering(httpContentType.getEncoding());
-        } else {
+        } else if (type != null) {
+            // Treat setContentType(null) as a transient reset, not an intent
+            // to opt out of buffering. Jetty 12 ee10 and Tomcat 10 clear the
+            // content-type before setting the real value when serving static
+            // resources; without this guard, the null call would latch
+            // bufferingWasDisabled and the real text/html follow-up would
+            // skip decoration in processInternally().
             disableBuffering();
         }
     }
