@@ -38,6 +38,7 @@ import org.sitemesh.content.tagrules.decorate.DecoratorTagRuleBundle;
 import org.sitemesh.content.tagrules.html.CoreHtmlTagRuleBundle;
 import org.sitemesh.content.tagrules.html.Sm2TagRuleBundle;
 import org.sitemesh.webmvc.SiteMeshView;
+import org.sitemesh.webmvc.SiteMeshViewResolverBeanPostProcessor;
 import org.sitemesh.webmvc.SiteMeshViewResolverPostProcessor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -146,10 +147,36 @@ public class SiteMeshViewResolverAutoConfiguration {
         return selector;
     }
 
+    /**
+     * Registers the bean-definition-rewriting post processor. Chosen when
+     * {@code sitemesh.viewResolver.wrapMode=bean-definition} (the default
+     * for backward compatibility). See {@link SiteMeshViewResolverPostProcessor}
+     * for the lifecycle semantics of this variant.
+     */
     @Bean
     @ConditionalOnMissingBean(SiteMeshViewResolverPostProcessor.class)
+    @ConditionalOnProperty(name = "sitemesh.viewResolver.wrapMode",
+            havingValue = "bean-definition", matchIfMissing = true)
     public SiteMeshViewResolverPostProcessor siteMeshViewResolverPostProcessor() {
         SiteMeshViewResolverPostProcessor pp = new SiteMeshViewResolverPostProcessor();
+        pp.setTargetViewResolverBeanName(targetViewResolverBeanName);
+        return pp;
+    }
+
+    /**
+     * Registers the live-bean-wrapping post processor. Chosen when
+     * {@code sitemesh.viewResolver.wrapMode=bean-instance}. Use this for
+     * frameworks (for example Grails) where the target view resolver's
+     * bean definition is not present in the registry at the time
+     * {@link org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor
+     * BeanDefinitionRegistryPostProcessors} fire, but an instance is later
+     * created under the configured bean name.
+     */
+    @Bean
+    @ConditionalOnMissingBean(SiteMeshViewResolverBeanPostProcessor.class)
+    @ConditionalOnProperty(name = "sitemesh.viewResolver.wrapMode", havingValue = "bean-instance")
+    public SiteMeshViewResolverBeanPostProcessor siteMeshViewResolverBeanPostProcessor() {
+        SiteMeshViewResolverBeanPostProcessor pp = new SiteMeshViewResolverBeanPostProcessor();
         pp.setTargetViewResolverBeanName(targetViewResolverBeanName);
         return pp;
     }
