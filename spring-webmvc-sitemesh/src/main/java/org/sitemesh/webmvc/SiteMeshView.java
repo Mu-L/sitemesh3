@@ -84,6 +84,38 @@ public class SiteMeshView implements View {
         return innerView;
     }
 
+    /**
+     * Returns the content processor this view uses. Exposed for subclasses
+     * that override {@link #createContext} and need to construct a custom
+     * {@link SiteMeshViewContext} with the same collaborators.
+     */
+    protected ContentProcessor getContentProcessor() {
+        return contentProcessor;
+    }
+
+    /**
+     * Returns the decorator selector this view uses.
+     */
+    protected DecoratorSelector<SiteMeshContext> getDecoratorSelector() {
+        return decoratorSelector;
+    }
+
+    /**
+     * Returns the servlet context this view uses.
+     */
+    protected ServletContext getServletContext() {
+        return servletContext;
+    }
+
+    /**
+     * Returns the view resolver this view dispatches decorator renders
+     * through. Exposed for the same reason as
+     * {@link #getContentProcessor()}.
+     */
+    protected ViewResolver getViewResolver() {
+        return viewResolver;
+    }
+
     @Override
     public final void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response)
             throws Exception {
