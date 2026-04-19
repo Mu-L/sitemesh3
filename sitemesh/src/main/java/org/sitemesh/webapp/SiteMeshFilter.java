@@ -19,7 +19,6 @@ package org.sitemesh.webapp;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.CharBuffer;
-import java.util.logging.Logger;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -56,8 +55,6 @@ import org.sitemesh.webapp.contentfilter.Selector;
  * @author Scott Farquhar
  */
 public class SiteMeshFilter extends ContentBufferingFilter {
-
-    private static final Logger logger = Logger.getLogger(SiteMeshFilter.class.getName());
 
     private final ContentProcessor contentProcessor;
     private final DecoratorSelector<WebAppContext> decoratorSelector;
@@ -98,18 +95,9 @@ public class SiteMeshFilter extends ContentBufferingFilter {
             return false;
         }
 
-        // Save original content in case decoration fails
-        Content originalContent = content;
-
         String[] decoratorPaths = decoratorSelector.selectDecoratorPaths(content, context);
-        try {
-            for (String decoratorPath : decoratorPaths) {
-                content = context.decorate(decoratorPath, content);
-            }
-        } catch (Exception e) {
-            // Decoration failed - fall back to original undecorated content
-            logger.warning("Decoration failed, falling back to original content: " + e.getMessage());
-            content = originalContent;
+        for (String decoratorPath : decoratorPaths) {
+            content = context.decorate(decoratorPath, content);
         }
 
         if (content == null) {
@@ -121,21 +109,11 @@ public class SiteMeshFilter extends ContentBufferingFilter {
         if (response.containsHeader("Content-Length")) {
             response.setContentLength(-1);
         }
-
-        // Attempt to write content
         try {
             content.getData().writeValueTo(response.getWriter());
         } catch (IllegalStateException ise) {  // If getOutputStream() has already been called
             content.getData().writeValueTo(new PrintStream(response.getOutputStream()));
         }
-
-        // If response was committed before we could write (e.g., by a forward() in Tomcat),
-        // try writing original content as a last resort
-        if (response.isCommitted() && content != originalContent) {
-            logger.warning("Response may have been committed during decoration. "
-                    + "If you see blank pages, ensure dispatcher uses include() instead of forward().");
-        }
-
         return true;
     }
 
