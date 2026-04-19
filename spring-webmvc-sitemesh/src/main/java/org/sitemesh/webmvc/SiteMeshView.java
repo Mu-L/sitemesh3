@@ -52,6 +52,18 @@ import org.springframework.web.servlet.ViewResolver;
  */
 public class SiteMeshView implements View {
 
+    /**
+     * Always-buffer selector: this View only runs when SiteMesh decoration
+     * is wanted for the current request, so the content-type guard is
+     * unnecessary. Shared across all renders since it is stateless.
+     */
+    private static final BasicSelector ALWAYS_BUFFER = new BasicSelector(new PathMapper<Boolean>(), false) {
+        @Override
+        public boolean shouldBufferForContentType(String ct, String mimeType, String encoding) {
+            return true;
+        }
+    };
+
     private final View innerView;
     private final ContentProcessor contentProcessor;
     private final DecoratorSelector<SiteMeshContext> decoratorSelector;
@@ -177,16 +189,7 @@ public class SiteMeshView implements View {
         String contentType = response.getContentType() != null ? response.getContentType() : "text/html";
         SiteMeshViewContext context = createContext(request, response, contentType, metaData);
 
-        // Always-buffer selector: this View only runs when SiteMesh
-        // decoration is wanted for the current request, so the content-type
-        // guard is unnecessary.
-        BasicSelector alwaysBufferHtml = new BasicSelector(new PathMapper<Boolean>(), false) {
-            @Override
-            public boolean shouldBufferForContentType(String ct, String mimeType, String encoding) {
-                return true;
-            }
-        };
-        HttpServletResponseBuffer buffer = new HttpServletResponseBuffer(response, metaData, alwaysBufferHtml);
+        HttpServletResponseBuffer buffer = new HttpServletResponseBuffer(response, metaData, ALWAYS_BUFFER);
         buffer.setContentType(contentType);
 
         innerView.render(model, request, buffer);

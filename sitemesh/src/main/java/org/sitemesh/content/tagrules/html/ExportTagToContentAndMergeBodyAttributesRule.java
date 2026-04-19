@@ -18,6 +18,7 @@ package org.sitemesh.content.tagrules.html;
 
 import java.io.IOException;
 import java.nio.CharBuffer;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import org.sitemesh.SiteMeshContext;
@@ -27,6 +28,8 @@ import org.sitemesh.tagprocessor.BasicBlockRule;
 import org.sitemesh.tagprocessor.CustomTag;
 import org.sitemesh.tagprocessor.Tag;
 public class ExportTagToContentAndMergeBodyAttributesRule extends BasicBlockRule {
+
+    private static final Pattern DOT = Pattern.compile("\\.");
 
     private final ContentProperty targetProperty;
     private final boolean includeInContent;
@@ -105,7 +108,7 @@ public class ExportTagToContentAndMergeBodyAttributesRule extends BasicBlockRule
 
     protected ContentProperty getProperty(Content content, String propertyPath) {
         ContentProperty currentProperty = content.getExtractedProperties();
-        for (String childPropertyName : propertyPath.split("\\.")) {
+        for (String childPropertyName : DOT.split(propertyPath)) {
             currentProperty = currentProperty.getChild(childPropertyName);
         }
         return currentProperty;

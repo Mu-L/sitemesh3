@@ -26,8 +26,8 @@ import org.sitemesh.SiteMeshContext;
 import org.sitemesh.config.MetaTagBasedDecoratorSelector;
 import org.sitemesh.config.PathBasedDecoratorSelector;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.LinkedList;
 
 /**
  * Common functionality for {@link BaseSiteMeshFilterBuilder} and
@@ -46,7 +46,7 @@ import java.util.LinkedList;
 public abstract class BaseSiteMeshBuilder
         <BUILDER extends BaseSiteMeshBuilder, CONTEXT extends SiteMeshContext, RESULT> {
 
-    private List<TagRuleBundle> tagRuleBundles = new LinkedList<TagRuleBundle>();
+    private List<TagRuleBundle> tagRuleBundles = new ArrayList<>();
     private ContentProcessor customContentProcessor;
 
     private PathBasedDecoratorSelector<CONTEXT> pathBasedDecoratorSelector

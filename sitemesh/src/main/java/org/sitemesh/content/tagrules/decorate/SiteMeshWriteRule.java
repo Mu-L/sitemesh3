@@ -23,6 +23,7 @@ import org.sitemesh.content.ContentProperty;
 import org.sitemesh.content.Content;
 
 import java.io.IOException;
+import java.util.regex.Pattern;
 
 /**
  * Replaces tags that look like {@code <sitemesh:write property='foo'/>} with the
@@ -33,6 +34,8 @@ import java.io.IOException;
  * @see SiteMeshContext#getContentToMerge()
  */
 public class SiteMeshWriteRule extends BasicBlockRule {
+
+    private static final Pattern DOT = Pattern.compile("\\.");
 
     private final SiteMeshContext siteMeshContext;
     private ContentProperty property;
@@ -55,7 +58,7 @@ public class SiteMeshWriteRule extends BasicBlockRule {
 
     protected ContentProperty getProperty(Content content, String propertyPath) {
         ContentProperty currentProperty = content.getExtractedProperties();
-        for (String childPropertyName : propertyPath.split("\\.")) {
+        for (String childPropertyName : DOT.split(propertyPath)) {
             currentProperty = currentProperty.getChild(childPropertyName);
         }
         return currentProperty;
