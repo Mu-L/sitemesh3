@@ -26,9 +26,8 @@ import org.sitemesh.SiteMeshContext;
 import org.sitemesh.config.MetaTagBasedDecoratorSelector;
 import org.sitemesh.config.PathBasedDecoratorSelector;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.LinkedList;
 
 /**
  * Common functionality for {@link BaseSiteMeshFilterBuilder} and
@@ -47,7 +46,7 @@ import java.util.LinkedList;
 public abstract class BaseSiteMeshBuilder
         <BUILDER extends BaseSiteMeshBuilder, CONTEXT extends SiteMeshContext, RESULT> {
 
-    private List<TagRuleBundle> tagRuleBundles = new LinkedList<TagRuleBundle>();
+    private List<TagRuleBundle> tagRuleBundles = new ArrayList<>();
     private ContentProcessor customContentProcessor;
 
     private PathBasedDecoratorSelector<CONTEXT> pathBasedDecoratorSelector
@@ -111,7 +110,7 @@ public abstract class BaseSiteMeshBuilder
      * implementation.</p>
      */
     public BUILDER addTagRuleBundles(TagRuleBundle... bundles) {
-        tagRuleBundles.addAll(Arrays.asList(bundles));
+        tagRuleBundles.addAll(List.of(bundles));
         return self();
     }
 
@@ -182,7 +181,7 @@ public abstract class BaseSiteMeshBuilder
      */
     public ContentProcessor getContentProcessor() {
         if (customContentProcessor == null) {
-            TagRuleBundle[] bundlesAsArray = tagRuleBundles.toArray(new TagRuleBundle[tagRuleBundles.size()]);
+            TagRuleBundle[] bundlesAsArray = tagRuleBundles.toArray(TagRuleBundle[]::new);
             return new TagBasedContentProcessor(bundlesAsArray);
         } else {
             return customContentProcessor;
@@ -225,7 +224,7 @@ public abstract class BaseSiteMeshBuilder
      * DecoratorSelector implementation.</p>
      */
     public BUILDER addDecoratorPaths(String contentPath, List<String> decoratorPaths) {
-        pathBasedDecoratorSelector.put(contentPath, decoratorPaths.toArray(new String[decoratorPaths.size()]));
+        pathBasedDecoratorSelector.put(contentPath, decoratorPaths.toArray(String[]::new));
         return self();
     }
 

@@ -133,10 +133,9 @@ public class Xml {
         List<Xml> result = new ArrayList<Xml>(nodeList.getLength());
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node node = nodeList.item(i);
-            if (node instanceof Element) {
-                Element element = (Element) node;
+            if (node instanceof Element element) {
                 if (element.getTagName().equals(tagName)) {
-                    result.add(new Xml((Element) node));
+                    result.add(new Xml(element));
                 }
             }
         }
@@ -157,10 +156,9 @@ public class Xml {
         NodeList nodeList = element.getChildNodes();
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node node = nodeList.item(i);
-            if (node instanceof Element) {
-                Element element = (Element) node;
+            if (node instanceof Element element) {
                 if (element.getTagName().equals(tagName)) {
-                    return new Xml((Element) node);
+                    return new Xml(element);
                 }
             }
         }

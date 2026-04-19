@@ -23,7 +23,6 @@ import org.sitemesh.webapp.contentfilter.Selector;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.Filter;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.ArrayList;
@@ -91,7 +90,7 @@ public abstract class BaseSiteMeshFilterBuilder<BUILDER extends BaseSiteMeshBuil
      * <p>Note: The MIME types are ignored if {@link #setCustomSelector(Selector)} is called.</p>
      */
     public BUILDER setMimeTypes(String... mimeTypes) {
-        this.mimeTypes = Arrays.asList(mimeTypes);
+        this.mimeTypes = List.of(mimeTypes);
         return self();
     }
 
@@ -136,7 +135,7 @@ public abstract class BaseSiteMeshFilterBuilder<BUILDER extends BaseSiteMeshBuil
         if (customSelector != null) {
             return customSelector;
         } else {
-            return new BasicSelector(excludesMapper, includeErrorPages, mimeTypes.toArray(new String[mimeTypes.size()]));
+            return new BasicSelector(excludesMapper, includeErrorPages, mimeTypes.toArray(String[]::new));
         }
     }
     

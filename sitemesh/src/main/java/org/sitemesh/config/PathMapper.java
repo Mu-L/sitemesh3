@@ -16,9 +16,7 @@
 
 package org.sitemesh.config;
 
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -49,24 +47,24 @@ import java.util.Set;
  * @author Vladimir Orany
  */
 public class PathMapper<T> {
-    
-    public static final Set<String> DEFAULT_KEYS;
-    
-    static {
-        Set<String> set = new HashSet<String>();
-        set.add("*");
-        set.add("**");
-        set.add("/*");
-        set.add("/**");
-        DEFAULT_KEYS = Collections.unmodifiableSet(set);
-    }
+
+    public static final Set<String> DEFAULT_KEYS = Set.of("*", "**", "/*", "/**");
 
     private final Map<String, T> mappings = new HashMap<String, T>();
+    /**
+     * Pre-computed char[] for each complex (wildcard) pattern. Avoids
+     * {@code pattern.toCharArray()} on every match attempt and lets
+     * {@link #findComplexKey(String)} iterate only the complex patterns.
+     */
+    private final Map<String, char[]> complexPatternChars = new HashMap<String, char[]>();
 
     /** Add a key and appropriate matching pattern. */
     public void put(String pattern, T value) {
         if (value != null) {
             mappings.put(pattern, value);
+            if (isComplexKey(pattern)) {
+                complexPatternChars.put(pattern, pattern.toCharArray());
+            }
         }
     }
 
@@ -76,11 +74,10 @@ public class PathMapper<T> {
         String result = findExactKey(path);
         if (result == null) result = findComplexKey(path);
         if (result == null) result = findDefaultKey();
-        String mapped = result;
-        if (mapped == null) return null;
-        return mappings.get(mapped);
+        if (result == null) return null;
+        return mappings.get(result);
     }
-    
+
     /** Retrieve appropriate pattern by matching patterns with supplied path. */
     public String getPatternInUse(String path) {
         if (path == null) path = "/";
@@ -97,10 +94,12 @@ public class PathMapper<T> {
     }
 
     private String findComplexKey(String path) {
+        if (complexPatternChars.isEmpty()) return null;
+        char[] strArr = path.toCharArray();
         String result = null;
-
-        for (String key : mappings.keySet()) {
-            if (isComplexKey(key) && match(key, path, true)) {
+        for (Map.Entry<String, char[]> entry : complexPatternChars.entrySet()) {
+            if (match(entry.getValue(), strArr, true)) {
+                String key = entry.getKey();
                 if (result == null || key.length() > result.length()) {
                     // longest key wins
                     result = key;
@@ -136,9 +135,7 @@ public class PathMapper<T> {
         return null;
     }
 
-    private static boolean match(String pattern, String str, boolean isCaseSensitive) {
-        char[] patArr = pattern.toCharArray();
-        char[] strArr = str.toCharArray();
+    private static boolean match(char[] patArr, char[] strArr, boolean isCaseSensitive) {
         int patIdxStart = 0;
         int patIdxEnd = patArr.length - 1;
         int strIdxStart = 0;

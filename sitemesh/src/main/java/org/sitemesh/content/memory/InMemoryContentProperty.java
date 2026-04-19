@@ -18,10 +18,10 @@ package org.sitemesh.content.memory;
 
 import org.sitemesh.content.ContentProperty;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -114,7 +114,7 @@ class InMemoryContentProperty extends InMemoryContentChunk implements ContentPro
     }
 
     public Iterable<ContentProperty> getDescendants() {
-        return walk(this, new LinkedList<ContentProperty>());
+        return walk(this, new ArrayList<>());
     }
 
     private List<ContentProperty> walk(ContentProperty node, List<ContentProperty> result) {

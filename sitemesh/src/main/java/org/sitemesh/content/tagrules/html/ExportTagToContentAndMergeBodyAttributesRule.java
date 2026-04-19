@@ -18,6 +18,7 @@ package org.sitemesh.content.tagrules.html;
 
 import java.io.IOException;
 import java.nio.CharBuffer;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import org.sitemesh.SiteMeshContext;
@@ -27,6 +28,8 @@ import org.sitemesh.tagprocessor.BasicBlockRule;
 import org.sitemesh.tagprocessor.CustomTag;
 import org.sitemesh.tagprocessor.Tag;
 public class ExportTagToContentAndMergeBodyAttributesRule extends BasicBlockRule {
+
+    private static final Pattern DOT = Pattern.compile("\\.");
 
     private final ContentProperty targetProperty;
     private final boolean includeInContent;
@@ -72,7 +75,7 @@ public class ExportTagToContentAndMergeBodyAttributesRule extends BasicBlockRule
         if (contentToMerge != null) { // decorator
             final CustomTag decoratorTag = new CustomTag(t);
             Stream.of("id", "class", "style")
-                    .map(prop -> getProperty(contentToMerge, String.format("body.%s", prop)))
+                    .map(prop -> getProperty(contentToMerge, "body.%s".formatted(prop)))
                     .filter(cp -> cp.getValue() != null)
                     .forEach(cp -> {
                         String newValue = cp.getValue().trim();
@@ -80,9 +83,9 @@ public class ExportTagToContentAndMergeBodyAttributesRule extends BasicBlockRule
                             String decoratorTagValue = decoratorTag.getAttributeValue(cp.getName(), false).trim();
                             if (!decoratorTagValue.isEmpty()) {
                                 if (cp.getName().equals("class")) {
-                                    newValue = String.format("%s %s", decoratorTagValue, newValue).trim();
+                                    newValue = "%s %s".formatted(decoratorTagValue, newValue).trim();
                                 } else if (cp.getName().equals("style")) {
-                                    newValue = String.format("%s; %s", decoratorTagValue, newValue).trim();
+                                    newValue = "%s; %s".formatted(decoratorTagValue, newValue).trim();
                                 } else if (cp.getName().equals("id") && newValue.trim().isEmpty()) {
                                     newValue = decoratorTagValue;
                                 }
@@ -105,7 +108,7 @@ public class ExportTagToContentAndMergeBodyAttributesRule extends BasicBlockRule
 
     protected ContentProperty getProperty(Content content, String propertyPath) {
         ContentProperty currentProperty = content.getExtractedProperties();
-        for (String childPropertyName : propertyPath.split("\\.")) {
+        for (String childPropertyName : DOT.split(propertyPath)) {
             currentProperty = currentProperty.getChild(childPropertyName);
         }
         return currentProperty;

@@ -23,6 +23,9 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
+import java.nio.charset.IllegalCharsetNameException;
+import java.nio.charset.StandardCharsets;
+import java.nio.charset.UnsupportedCharsetException;
 
 /**
  * Converts text as bytes to chars using specified encoding.
@@ -55,10 +58,18 @@ public class TextEncoder {
         if (encoding == null) {
             encoding = DEFAULT_ENCODING;
         }
-        if (!Charset.isSupported(encoding)) {
-            throw new IOException("Unsupported encoding " + encoding);
+        Charset charset;
+        // Fast path for the overwhelmingly common case — avoids the two
+        // Charset registry lookups (isSupported + forName) on every response.
+        if ("UTF-8".equalsIgnoreCase(encoding)) {
+            charset = StandardCharsets.UTF_8;
+        } else {
+            try {
+                charset = Charset.forName(encoding);
+            } catch (UnsupportedCharsetException | IllegalCharsetNameException e) {
+                throw new IOException("Unsupported encoding " + encoding, e);
+            }
         }
-        Charset charset = Charset.forName(encoding);
         return charset.newDecoder()
                 .onMalformedInput(CodingErrorAction.REPLACE)
                 .onUnmappableCharacter(CodingErrorAction.REPLACE);
