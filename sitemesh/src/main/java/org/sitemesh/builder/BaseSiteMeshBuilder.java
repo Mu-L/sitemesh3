@@ -26,7 +26,6 @@ import org.sitemesh.SiteMeshContext;
 import org.sitemesh.config.MetaTagBasedDecoratorSelector;
 import org.sitemesh.config.PathBasedDecoratorSelector;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.LinkedList;
 
@@ -111,7 +110,7 @@ public abstract class BaseSiteMeshBuilder
      * implementation.</p>
      */
     public BUILDER addTagRuleBundles(TagRuleBundle... bundles) {
-        tagRuleBundles.addAll(Arrays.asList(bundles));
+        tagRuleBundles.addAll(List.of(bundles));
         return self();
     }
 

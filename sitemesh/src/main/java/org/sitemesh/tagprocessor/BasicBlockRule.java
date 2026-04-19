@@ -55,22 +55,19 @@ public abstract class BasicBlockRule<T> extends BasicRule {
     @Override
     public void process(Tag tag) throws IOException {
         switch (tag.getType()) {
-            case OPEN: { // <tag>
+            case OPEN -> { // <tag>
                 T data = processStart(tag);
-                current = new DataHolder<T>(data, current);
-                break;
+                current = new DataHolder<>(data, current);
             }
-            case CLOSE: { // </tag>
+            case CLOSE -> { // </tag>
                 if (current != null) {
-                    processEnd(tag, current.getData());
-                    current = current.getPrevious();
+                    processEnd(tag, current.data());
+                    current = current.previous();
                 }
-                break;
             }
-            case EMPTY: { // <tag/>
+            case EMPTY -> { // <tag/>
                 T data = processStart(tag);
                 processEnd(tag, data);
-                break;
             }
         }
     }
@@ -78,22 +75,7 @@ public abstract class BasicBlockRule<T> extends BasicRule {
     /**
      * A one-way linked list to hold nested data.
      */
-    private static class DataHolder<T> {
-        private final T data;
-        private final DataHolder<T> previous;
-
-        public DataHolder(T data, DataHolder<T> previous) {
-            this.data = data;
-            this.previous = previous;
-        }
-
-        public T getData() {
-            return data;
-        }
-
-        public DataHolder<T> getPrevious() {
-            return previous;
-        }
+    private record DataHolder<T>(T data, DataHolder<T> previous) {
     }
 
 }
