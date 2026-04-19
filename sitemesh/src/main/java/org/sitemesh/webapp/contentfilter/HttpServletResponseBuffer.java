@@ -52,6 +52,10 @@ public class HttpServletResponseBuffer extends HttpServletResponseWrapper {
     private Buffer buffer;
     private boolean bufferingWasDisabled = false;
     private Integer statusCode = null;
+    // Cache the last parsed content-type to avoid re-scanning on repeat calls
+    // (frameworks commonly call setContentType more than once per response).
+    private String lastContentTypeRaw;
+    private HttpContentType lastContentTypeParsed;
 
 
     public HttpServletResponseBuffer(final HttpServletResponse originalResponse, ResponseMetaData metaData, Selector selector) {
@@ -173,7 +177,14 @@ public class HttpServletResponseBuffer extends HttpServletResponseWrapper {
     @Override
     public void setContentType(String type) {
         super.setContentType(type);
-        HttpContentType httpContentType = new HttpContentType(type);
+        HttpContentType httpContentType;
+        if (type != null && type.equals(lastContentTypeRaw)) {
+            httpContentType = lastContentTypeParsed;
+        } else {
+            httpContentType = new HttpContentType(type);
+            lastContentTypeRaw = type;
+            lastContentTypeParsed = httpContentType;
+        }
         if (selector.shouldBufferForContentType(type, httpContentType.getType(), httpContentType.getEncoding())) {
             enableBuffering(httpContentType.getEncoding());
         } else {
