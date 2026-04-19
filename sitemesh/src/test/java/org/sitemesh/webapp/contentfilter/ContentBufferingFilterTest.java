@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.nio.CharBuffer;
 
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -156,6 +157,50 @@ public class ContentBufferingFilterTest extends TestCase {
                         "Content-Length: 10\n" + // <---
                         "\n" +
                         "1234567890",
+                webEnvironment.getRawResponse());
+    }
+
+    /**
+     * Reproduces the regression introduced when bumping the example WAR to
+     * Jetty 12 ee10 / Tomcat 10: the DefaultServlet that serves static
+     * resources calls {@code setContentType(null)} before the real
+     * {@code text/html} value. Previously, the first call latched
+     * {@code bufferingWasDisabled=true}, and although the second call
+     * allocated a new buffer, {@link ContentBufferingFilter#processInternally}
+     * skipped {@code postProcess} because of the stale latch — the raw
+     * (undecorated) content was written straight through.
+     */
+    public void testDecoratesWhenContentTypeIsResetToNullBeforeBeingSet() throws Exception {
+        WebEnvironment webEnvironment = new WebEnvironment.Builder()
+                .addServlet("/filtered", new HttpServlet() {
+                    @Override
+                    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+                            throws ServletException, IOException {
+                        // Simulate Jetty 12 ee10 / Tomcat 10 DefaultServlet behavior:
+                        // reset content type before setting the real value.
+                        response.setContentType(null);
+                        response.setContentType("text/html");
+                        response.getOutputStream().print("raw");
+                    }
+                })
+                .addFilter("/filtered", new MyContentBufferingFilter() {
+                    @Override
+                    protected boolean postProcess(String contentType, CharBuffer buffer,
+                                              HttpServletRequest request, HttpServletResponse response, ResponseMetaData metaData)
+                            throws IOException, ServletException {
+                        response.getOutputStream().print(buffer.toString().toUpperCase());
+                        return true;
+                    }
+                })
+                .create();
+
+        webEnvironment.doGet("/filtered");
+        assertEquals(
+                "HTTP/1.1 200 OK\n" +
+                        "Content-Type: text/html\n" +
+                        "Content-Length: 3\n" +
+                        "\n" +
+                        "RAW", // postProcess ran — content uppercased
                 webEnvironment.getRawResponse());
     }
 

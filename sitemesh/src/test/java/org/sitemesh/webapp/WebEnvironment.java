@@ -17,16 +17,14 @@
 package org.sitemesh.webapp;
 
 import jakarta.servlet.DispatcherType;
+import org.eclipse.jetty.ee10.servlet.FilterHolder;
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee10.servlet.ServletHolder;
 import org.eclipse.jetty.http.HttpTester;
 import org.eclipse.jetty.server.LocalConnector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.server.handler.HandlerList;
-import org.eclipse.jetty.servlet.FilterHolder;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.util.log.Log;
-import org.eclipse.jetty.util.resource.PathResource;
+import org.eclipse.jetty.util.resource.ResourceFactory;
 
 import jakarta.servlet.Filter;
 import jakarta.servlet.ServletContextListener;
@@ -129,7 +127,7 @@ public class WebEnvironment {
     public String getRawResponse() {
         return rawResponse
                 .replaceFirst("\\W+Date: .+","")
-                .replaceFirst("\\W+Server: Jetty\\(\\d+\\.\\d+\\.\\d+\\)","");
+                .replaceFirst("\\W+Server: [^\\n]+","");
     }
 
     public String getBody() {
@@ -159,7 +157,6 @@ public class WebEnvironment {
         private EnumSet DEFAULT = EnumSet.of(DispatcherType.REQUEST);
 
         public Builder() throws IOException, URISyntaxException {
-            Log.setLog(null);
             server = new Server();
             connector = new ServerConnector(server);
             context = new ServletContextHandler();
@@ -204,7 +201,7 @@ public class WebEnvironment {
         }
 
         public Builder serveResourcesFrom(String path) {
-            context.setResourceBase(path);
+            context.setBaseResource(ResourceFactory.of(context).newResource(path));
             return this;
         }
 
@@ -226,12 +223,12 @@ public class WebEnvironment {
         }
 
         public Builder setRootDir(File dir) throws IOException, URISyntaxException {
-            context.setBaseResource(new PathResource(dir.toURI().toURL()));
+            context.setBaseResource(ResourceFactory.of(context).newResource(dir.toPath()));
             return this;
         }
 
         public WebEnvironment create() throws Exception {
-            server.setHandler(new HandlerList(context));
+            server.setHandler(context);
             server.start();
             return new WebEnvironment(connector);
         }

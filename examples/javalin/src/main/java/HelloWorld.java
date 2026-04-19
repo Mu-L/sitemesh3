@@ -1,7 +1,7 @@
 import io.javalin.Javalin;
 import io.javalin.http.staticfiles.Location;
 import jakarta.servlet.DispatcherType;
-import org.eclipse.jetty.servlet.FilterHolder;
+import org.eclipse.jetty.ee10.servlet.FilterHolder;
 import org.sitemesh.config.ConfigurableSiteMeshFilter;
 import io.javalin.rendering.template.JavalinFreemarker;
 import freemarker.cache.ClassTemplateLoader;
@@ -13,7 +13,7 @@ import java.util.EnumSet;
 
 public class HelloWorld {
     public static void main(String[] args) {
-        var app = Javalin.create(config -> {
+        Javalin.create(config -> {
             config.fileRenderer(new JavalinFreemarker(configureFreemarker("/templates")));
             config.staticFiles.add(staticFiles -> {
                 staticFiles.hostedPath = "/static";
@@ -29,10 +29,9 @@ public class HelloWorld {
                         .addExcludedPath("/decorators/*")
                 )), "/*", EnumSet.of(DispatcherType.REQUEST));
             });
-        })
-        .get("/", ctx -> ctx.render("/hello.ftl", Collections.singletonMap("user", "Scott")))
-        .get("/decorators/default", ctx -> ctx.render("/decorators/default.ftl"))
-        .start(7070);
+            config.routes.get("/", ctx -> ctx.render("/hello.ftl", Collections.singletonMap("user", "Scott")));
+            config.routes.get("/decorators/default", ctx -> ctx.render("/decorators/default.ftl"));
+        }).start(7070);
     }
 
     public static Configuration configureFreemarker(String templatePath) {

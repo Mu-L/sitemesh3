@@ -8,4 +8,5 @@ description = 'SiteMesh Spring Boot Starter'
 dependencies {
     api project(':sitemesh')
     api 'org.springframework.boot:spring-boot-starter-web:4.0.1'
+    implementation project(':spring-webmvc-sitemesh')
 }

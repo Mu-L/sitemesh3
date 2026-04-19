@@ -21,6 +21,8 @@ import org.sitemesh.content.ContentChunk;
 import org.sitemesh.tagprocessor.CharSequenceBuffer;
 
 import java.io.IOException;
+import java.io.Writer;
+import java.nio.CharBuffer;
 
 /**
  * Stores a chunk of content in memory.
@@ -52,12 +54,23 @@ class InMemoryContentChunk implements ContentChunk {
         if (value == null) {
             return;
         }
-        if (value instanceof CharSequenceBuffer) {
+        if (value instanceof CharSequenceBuffer csb) {
             // Optimization.
-            ((CharSequenceBuffer) value).writeTo(out);
-        } else {
-            out.append(value);
+            csb.writeTo(out);
+            return;
         }
+        if (out instanceof Writer w && value instanceof CharBuffer cb) {
+            // Avoid the String allocation that Appendable.append(CharSequence)
+            // performs on PrintWriter/Writer when the CharBuffer has a backing array.
+            if (cb.hasArray()) {
+                w.write(
+                        cb.array(),
+                        cb.arrayOffset() + cb.position(),
+                        cb.remaining());
+                return;
+            }
+        }
+        out.append(value);
     }
 
     public void setValue(CharSequence value) {

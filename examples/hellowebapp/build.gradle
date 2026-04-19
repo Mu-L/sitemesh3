@@ -7,12 +7,14 @@
 
 plugins {
     id 'war'
-    id "org.gretty" version "5.0.1"
+    id "org.gretty" version "5.0.2"
 }
 
 gretty {
     contextPath = '/'
     servletContainer = 'tomcat11'
+    // -PhttpPort=18080 lets the example run alongside other local servers on 8080.
+    httpPort = (project.findProperty('httpPort') ?: 8080) as Integer
 }
 
 // Override jettyRun to use Jetty 12 instead of default Jetty 11
@@ -28,7 +30,7 @@ ext.title = 'SiteMesh Example Web-app'
 description = 'SiteMesh Example: Hello World Web-app'
 
 dependencies {
-    implementation 'jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:3.0.0'
+    implementation 'jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:3.0.2'
     implementation 'org.glassfish.web:jakarta.servlet.jsp.jstl:3.0.1'
     implementation project(':sitemesh-webfilter')
 }

@@ -96,13 +96,13 @@ public abstract class ContentBufferingFilter implements Filter {
         this.filterConfig = filterConfig;
         this.containerTweaks = initContainerTweaks();
 
-        logger.info(String.format("SiteMesh %s initialized with filter name '%s'",
+        logger.info("SiteMesh %s initialized with filter name '%s'".formatted(
                 ContentBufferingFilter.class.getPackage().getSpecificationVersion(),
                 filterConfig.getFilterName()));
 
         for (FilterRegistration filterRegistration : filterConfig.getServletContext().getFilterRegistrations().values()) {
             if (!filterRegistration.getName().equals(filterConfig.getFilterName()) && filterRegistration.getClassName().equals("org.sitemesh.webapp.SiteMeshFilter")) {
-                logger.warning(String.format("SiteMesh has already been registered as '%s'. Initializing multiple SiteMesh filters not recommended (%s).", filterRegistration.getName(), filterConfig.getFilterName()));
+                logger.warning("SiteMesh has already been registered as '%s'. Initializing multiple SiteMesh filters not recommended (%s).".formatted(filterRegistration.getName(), filterConfig.getFilterName()));
             }
         }
     }

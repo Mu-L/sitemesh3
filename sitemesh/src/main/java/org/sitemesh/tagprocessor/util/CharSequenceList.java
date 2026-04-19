@@ -19,9 +19,10 @@ package org.sitemesh.tagprocessor.util;
 import org.sitemesh.tagprocessor.CharSequenceBuffer;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.List;
 
 /**
  * An {@link java.lang.Appendable} buffer of character data,similar to {@link java.lang.StringBuilder} and
@@ -50,7 +51,7 @@ import java.util.LinkedList;
  */
 public class CharSequenceList implements CharSequenceBuffer {
 
-    private final LinkedList<CharSequence> list = new LinkedList<CharSequence>();
+    private final List<CharSequence> list = new ArrayList<>(64);
 
     public Appendable append(CharSequence csq) {
         list.add(csq);
@@ -63,7 +64,7 @@ public class CharSequenceList implements CharSequenceBuffer {
 
     /**
      * Warning: Each time this method is called, a new String of length 1 is constructed
-     * and added to a LinkedList - this is not optimal. If building up strings, it is
+     * and added to the internal list - this is not optimal. If building up strings, it is
      * more efficient to build these up externally in a StringBuilder, and then pass that
      * to {@link #append(CharSequence)}.
      */
