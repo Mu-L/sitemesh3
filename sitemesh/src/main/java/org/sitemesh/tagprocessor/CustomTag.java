@@ -112,8 +112,7 @@ public class CustomTag implements Tag {
 
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof CustomTag)) return false;
-        CustomTag customTag = (CustomTag) o;
+        if (!(o instanceof CustomTag customTag)) return false;
 
         return type == customTag.type
                 && !(attributes != null ? !Arrays.equals(attributes, customTag.attributes) : customTag.attributes != null)

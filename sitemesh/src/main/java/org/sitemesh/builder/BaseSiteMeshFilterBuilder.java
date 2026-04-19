@@ -136,7 +136,7 @@ public abstract class BaseSiteMeshFilterBuilder<BUILDER extends BaseSiteMeshBuil
         if (customSelector != null) {
             return customSelector;
         } else {
-            return new BasicSelector(excludesMapper, includeErrorPages, mimeTypes.toArray(new String[mimeTypes.size()]));
+            return new BasicSelector(excludesMapper, includeErrorPages, mimeTypes.toArray(String[]::new));
         }
     }
     

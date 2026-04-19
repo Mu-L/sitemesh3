@@ -72,7 +72,7 @@ public class ExportTagToContentAndMergeBodyAttributesRule extends BasicBlockRule
         if (contentToMerge != null) { // decorator
             final CustomTag decoratorTag = new CustomTag(t);
             Stream.of("id", "class", "style")
-                    .map(prop -> getProperty(contentToMerge, String.format("body.%s", prop)))
+                    .map(prop -> getProperty(contentToMerge, "body.%s".formatted(prop)))
                     .filter(cp -> cp.getValue() != null)
                     .forEach(cp -> {
                         String newValue = cp.getValue().trim();
@@ -80,9 +80,9 @@ public class ExportTagToContentAndMergeBodyAttributesRule extends BasicBlockRule
                             String decoratorTagValue = decoratorTag.getAttributeValue(cp.getName(), false).trim();
                             if (!decoratorTagValue.isEmpty()) {
                                 if (cp.getName().equals("class")) {
-                                    newValue = String.format("%s %s", decoratorTagValue, newValue).trim();
+                                    newValue = "%s %s".formatted(decoratorTagValue, newValue).trim();
                                 } else if (cp.getName().equals("style")) {
-                                    newValue = String.format("%s; %s", decoratorTagValue, newValue).trim();
+                                    newValue = "%s; %s".formatted(decoratorTagValue, newValue).trim();
                                 } else if (cp.getName().equals("id") && newValue.trim().isEmpty()) {
                                     newValue = decoratorTagValue;
                                 }

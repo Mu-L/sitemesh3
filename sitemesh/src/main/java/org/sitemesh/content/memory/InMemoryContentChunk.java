@@ -54,17 +54,16 @@ class InMemoryContentChunk implements ContentChunk {
         if (value == null) {
             return;
         }
-        if (value instanceof CharSequenceBuffer) {
+        if (value instanceof CharSequenceBuffer csb) {
             // Optimization.
-            ((CharSequenceBuffer) value).writeTo(out);
+            csb.writeTo(out);
             return;
         }
-        if (out instanceof Writer && value instanceof CharBuffer) {
+        if (out instanceof Writer w && value instanceof CharBuffer cb) {
             // Avoid the String allocation that Appendable.append(CharSequence)
             // performs on PrintWriter/Writer when the CharBuffer has a backing array.
-            CharBuffer cb = (CharBuffer) value;
             if (cb.hasArray()) {
-                ((Writer) out).write(
+                w.write(
                         cb.array(),
                         cb.arrayOffset() + cb.position(),
                         cb.remaining());

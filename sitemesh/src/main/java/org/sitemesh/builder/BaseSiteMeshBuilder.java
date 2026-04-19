@@ -182,7 +182,7 @@ public abstract class BaseSiteMeshBuilder
      */
     public ContentProcessor getContentProcessor() {
         if (customContentProcessor == null) {
-            TagRuleBundle[] bundlesAsArray = tagRuleBundles.toArray(new TagRuleBundle[tagRuleBundles.size()]);
+            TagRuleBundle[] bundlesAsArray = tagRuleBundles.toArray(TagRuleBundle[]::new);
             return new TagBasedContentProcessor(bundlesAsArray);
         } else {
             return customContentProcessor;
@@ -225,7 +225,7 @@ public abstract class BaseSiteMeshBuilder
      * DecoratorSelector implementation.</p>
      */
     public BUILDER addDecoratorPaths(String contentPath, List<String> decoratorPaths) {
-        pathBasedDecoratorSelector.put(contentPath, decoratorPaths.toArray(new String[decoratorPaths.size()]));
+        pathBasedDecoratorSelector.put(contentPath, decoratorPaths.toArray(String[]::new));
         return self();
     }
 

@@ -400,16 +400,12 @@ public class TagTokenizerTest extends TestCase {
         }
 
         private String typeAsString(Tag.Type type) {
-            switch (type) {
-                case OPEN:
-                    return "*open*";
-                case CLOSE:
-                    return "*close*";
-                case EMPTY:
-                    return "*empty*";
-                default:
-                    return "*unknown*";
-            }
+            return switch (type) {
+                case OPEN -> "*open*";
+                case CLOSE -> "*close*";
+                case EMPTY -> "*empty*";
+                default -> "*unknown*";
+            };
         }
 
     }

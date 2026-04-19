@@ -16,9 +16,7 @@
 
 package org.sitemesh.config;
 
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -50,16 +48,7 @@ import java.util.Set;
  */
 public class PathMapper<T> {
     
-    public static final Set<String> DEFAULT_KEYS;
-    
-    static {
-        Set<String> set = new HashSet<String>();
-        set.add("*");
-        set.add("**");
-        set.add("/*");
-        set.add("/**");
-        DEFAULT_KEYS = Collections.unmodifiableSet(set);
-    }
+    public static final Set<String> DEFAULT_KEYS = Set.of("*", "**", "/*", "/**");
 
     private final Map<String, T> mappings = new HashMap<String, T>();
 
